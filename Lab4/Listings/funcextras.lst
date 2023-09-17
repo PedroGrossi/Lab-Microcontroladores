@@ -1,0 +1,239 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ; FuncExtras.s
+    2 00000000         ; Desenvolvido para a placa EK-TM4C1294XL
+    3 00000000         ; Pedro Henrique Grossi da Silva - 24/05/2023 
+    4 00000000         
+    5 00000000         ;#######################################################
+                       #########################
+    6 00000000                 THUMB                        ; Instruções do tip
+                                                            o Thumb-2
+    7 00000000         ;#######################################################
+                       #########################  
+    8 00000000                 AREA             DATA, ALIGN=2
+    9 00000000         
+   10 00000000         ;#######################################################
+                       ######################### 
+   11 00000000                 AREA             |.text|, CODE, READONLY, ALIGN=
+2
+   12 00000000         
+   13 00000000                 IMPORT           SysTick_Wait1ms 
+                                                            ; Função de espera
+   14 00000000                 IMPORT           PortF_Output 
+                                                            ; Output da porta F
+                                                            
+   15 00000000                 IMPORT           PortN_Output 
+                                                            ; Output da porta N
+                                                            
+   16 00000000         
+   17 00000000                 EXPORT           Wait
+   18 00000000         ;#######################################################
+                       #########################
+   19 00000000         ; Função Wait
+   20 00000000         ; Parâmetro de entrada: Não tem
+   21 00000000         ; Parâmetro de saída: Não tem
+   22 00000000         ;#######################################################
+                       #########################
+   23 00000000         Wait
+   24 00000000 46F1            MOV              R9, LR
+   25 00000002 F1B8 0F00       CMP              R8, #0
+   26 00000006 BF08 F000 
+              F834             BLEQ             Verifica_Pedestre
+   27 0000000C F1B8 0F00       CMP              R8, #0
+   28 00000010 BF08 F7FF 
+              FFFE             BLEQ             SysTick_Wait1ms
+   29 00000016 BF08 4748       BXEQ             R9
+   30 0000001A F1B8 0F01       CMP              R8, #1
+   31 0000001E BF04 F241 
+              7070             MOVEQ            R0, #6000
+   32 00000024 F7FF FFFE       BLEQ             SysTick_Wait1ms
+   33 00000028 BF08 4748       BXEQ             R9
+   34 0000002C F1B8 0F02       CMP              R8, #2
+   35 00000030 BF04 F44F 
+              60FA             MOVEQ            R0, #2000
+   36 00000036 F7FF FFFE       BLEQ             SysTick_Wait1ms
+   37 0000003A BF08 4748       BXEQ             R9
+   38 0000003E F1B8 0F03       CMP              R8, #3
+   39 00000042 BF04 F44F 
+              707A             MOVEQ            R0, #1000
+   40 00000048 F7FF FFFE       BLEQ             SysTick_Wait1ms
+   41 0000004C BF08 4748       BXEQ             R9
+   42 00000050 F1B8 0F04       CMP              R8, #4
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+   43 00000054 BF04 F241 
+              7070             MOVEQ            R0, #6000
+   44 0000005A F7FF FFFE       BLEQ             SysTick_Wait1ms
+   45 0000005E BF08 4748       BXEQ             R9
+   46 00000062 F1B8 0F05       CMP              R8, #5
+   47 00000066 BF04 F44F 
+              60FA             MOVEQ            R0, #2000
+   48 0000006C F7FF FFFE       BLEQ             SysTick_Wait1ms
+   49 00000070 BF08 4748       BXEQ             R9
+   50 00000074         
+   51 00000074         Verifica_Pedestre
+   52 00000074 B500            PUSH             {LR}
+   53 00000076 F1BB 0F00       CMP              R11,#0
+   54 0000007A BF04 F44F 
+              707A             MOVEQ            R0, #1000   ;Espera 1 segundo
+   55 00000080 4770            BXEQ             LR
+   56 00000082 F04F 0700       MOV              R7, #0
+   57 00000086         Pisca_Led
+   58 00000086 F04F 0002       MOV              R0, #2_00000010
+   59 0000008A F7FF FFFE       BL               PortN_Output
+   60 0000008E F04F 0010       MOV              R0, #2_00010000
+   61 00000092 F7FF FFFE       BL               PortF_Output
+   62 00000096 F44F 707A       MOV              R0, #1000   ;Espera 1 segundos
+   63 0000009A F7FF FFFE       BL               SysTick_Wait1ms
+   64 0000009E F107 0701       ADD              R7, #1
+   65 000000A2 2F05            CMP              R7, #5
+   66 000000A4 BF01 2000       MOVEQ            R0, #0
+   67 000000A8 F04F 0B00       MOVEQ            R11, #0     ;Reseta a interrupç
+                                                            ão
+   68 000000AC F85D EB04       POPEQ            {LR}
+   69 000000B0 4770            BXEQ             LR          ;ACABOU A FUNÇÃO
+   70 000000B2 F04F 0001       MOV              R0, #2_00000001
+   71 000000B6 F7FF FFFE       BL               PortN_Output
+   72 000000BA F04F 0001       MOV              R0, #2_00000001
+   73 000000BE F7FF FFFE       BL               PortF_Output
+   74 000000C2 F44F 707A       MOV              R0, #1000   ;Espera 1 segundos
+   75 000000C6 F7FF FFFE       BL               SysTick_Wait1ms
+   76 000000CA F107 0701       ADD              R7, #1
+   77 000000CE E7DA            B                Pisca_Led
+   78 000000D0         
+   79 000000D0         
+   80 000000D0         ;#######################################################
+                       #########################
+   81 000000D0         ; Fim do Arquivo
+   82 000000D0         ;#######################################################
+                       #########################
+   83 000000D0                 ALIGN                        ;Garante que o fim 
+                                                            da seção está alinh
+                                                            ada 
+   84 000000D0 02 01   Pisca_N DCB              2_00000010,2_00000001
+   85 000000D2 10 01   Pisca_F DCB              2_00010000,2_00000001
+   86 000000D4                 END                          ;Fim do arquivo
+Command Line: --debug --xref --diag_suppress=9931,A1950W --cpu=Cortex-M4.fp.sp 
+--depend=.\objects\funcextras.d -o.\objects\funcextras.o -IC:\Users\ph01g\AppDa
+ta\Local\Arm\Packs\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C129 --predefine="__EV
+AL SETA 1" --predefine="__UVISION_VERSION SETA 538" --predefine="TM4C1294NCPDT 
+SETA 1" --list=.\listings\funcextras.lst FuncExtras.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+DATA 00000000
+
+Symbol: DATA
+   Definitions
+      At line 8 in file FuncExtras.s
+   Uses
+      None
+Comment: DATA unused
+1 symbol
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+.text 00000000
+
+Symbol: .text
+   Definitions
+      At line 11 in file FuncExtras.s
+   Uses
+      None
+Comment: .text unused
+Pisca_F 000000D2
+
+Symbol: Pisca_F
+   Definitions
+      At line 85 in file FuncExtras.s
+   Uses
+      None
+Comment: Pisca_F unused
+Pisca_Led 00000086
+
+Symbol: Pisca_Led
+   Definitions
+      At line 57 in file FuncExtras.s
+   Uses
+      At line 77 in file FuncExtras.s
+Comment: Pisca_Led used once
+Pisca_N 000000D0
+
+Symbol: Pisca_N
+   Definitions
+      At line 84 in file FuncExtras.s
+   Uses
+      None
+Comment: Pisca_N unused
+Verifica_Pedestre 00000074
+
+Symbol: Verifica_Pedestre
+   Definitions
+      At line 51 in file FuncExtras.s
+   Uses
+      At line 26 in file FuncExtras.s
+Comment: Verifica_Pedestre used once
+Wait 00000000
+
+Symbol: Wait
+   Definitions
+      At line 23 in file FuncExtras.s
+   Uses
+      At line 17 in file FuncExtras.s
+Comment: Wait used once
+6 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+External symbols
+
+PortF_Output 00000000
+
+Symbol: PortF_Output
+   Definitions
+      At line 14 in file FuncExtras.s
+   Uses
+      At line 61 in file FuncExtras.s
+      At line 73 in file FuncExtras.s
+
+PortN_Output 00000000
+
+Symbol: PortN_Output
+   Definitions
+      At line 15 in file FuncExtras.s
+   Uses
+      At line 59 in file FuncExtras.s
+      At line 71 in file FuncExtras.s
+
+SysTick_Wait1ms 00000000
+
+Symbol: SysTick_Wait1ms
+   Definitions
+      At line 13 in file FuncExtras.s
+   Uses
+      At line 28 in file FuncExtras.s
+      At line 32 in file FuncExtras.s
+      At line 36 in file FuncExtras.s
+      At line 40 in file FuncExtras.s
+      At line 44 in file FuncExtras.s
+      At line 48 in file FuncExtras.s
+      At line 63 in file FuncExtras.s
+      At line 75 in file FuncExtras.s
+
+3 symbols
+344 symbols in table

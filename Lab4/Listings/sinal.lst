@@ -1,0 +1,186 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ; sinal.s
+    2 00000000         ; Desenvolvido para a placa EK-TM4C1294XL
+    3 00000000         ; Pedro Henrique Grossi da Silva - 16/06/2023 
+    4 00000000         
+    5 00000000         ;#######################################################
+                       #########################
+    6 00000000                 THUMB                        ; Instruções do tip
+                                                            o Thumb-2
+    7 00000000         ;#######################################################
+                       #########################  
+    8 00000000                 AREA             DATA, ALIGN=2
+    9 00000000         
+   10 00000000         ;#######################################################
+                       ######################### 
+   11 00000000                 AREA             |.text|, CODE, READONLY, ALIGN=
+2
+   12 00000000         
+   13 00000000                 IMPORT           PortF_Output 
+                                                            ; Output da porta F
+                                                            
+   14 00000000                 IMPORT           PortN_Output 
+                                                            ; Output da porta N
+                                                            
+   15 00000000         
+   16 00000000                 EXPORT           Sinal
+   17 00000000                 IMPORT           Wait
+   18 00000000         
+   19 00000000         ;#######################################################
+                       #########################
+   20 00000000         ; Função Sinal
+   21 00000000         ; Parâmetro de entrada: Não tem
+   22 00000000         ; Parâmetro de saída: Não tem
+   23 00000000         ;#######################################################
+                       #########################
+   24 00000000         Sinal
+   25 00000000 46F2            MOV              R10, LR
+   26 00000002 4D0D            LDR              R5, =Sem_F  ;Vetor de estados d
+                                                            e F
+   27 00000004 4E0D            LDR              R6, =Sem_N  ;Vetor de estados d
+                                                            e N 
+   28 00000006 F855 0008       LDR              R0, [R5, R8] ;Seleciona o estad
+                                                            o de F
+   29 0000000A F7FF FFFE       BL               PortF_Output ;Print do estado d
+                                                            e F
+   30 0000000E F856 0008       LDR              R0, [R6, R8] ;Seleciona o estad
+                                                            o de N
+   31 00000012 F7FF FFFE       BL               PortN_Output ;Print do estado d
+                                                            e N
+   32 00000016 F7FF FFFE       BL               Wait
+   33 0000001A F1B8 0F05       CMP              R8, #5      ;Se chega no estado
+                                                             5(ultimo) 
+   34 0000001E BF14 F108 
+              0801             ADDNE            R8, R8, #1  ;Passa para o proxi
+                                                            mo estado
+   35 00000024 F04F 0800       MOVEQ            R8, #0      ;Retorna para o pri
+                                                            meiro estado
+   36 00000028 4750            BX               R10         ;return
+   37 0000002A         
+   38 0000002A         ;#######################################################
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+                       #########################
+   39 0000002A         ; Fim do Arquivo
+   40 0000002A         ;#######################################################
+                       #########################
+   41 0000002A 00 00           ALIGN                        ;Garante que o fim 
+                                                            da seção está alinh
+                                                            ada 
+   42 0000002C         ;estados dos leds no semaforo
+   43 0000002C 03 03 03 
+              03 02 01 Sem_N   DCB              2_00000011,2_00000011,2_0000001
+1,2_00000011,2_00000010,2_00000001 
+                                                            ;vetor que salva o 
+                                                            estado do modo N do
+                                                             semaforo
+   44 00000032 11 10 01 
+              11 11 11 Sem_F   DCB              2_00010001,2_00010000,2_0000000
+1,2_00010001,2_00010001,2_00010001 
+                                                            ;vetor que salva o 
+                                                            estado do modo F do
+                                                             semaforo
+   45 00000038         
+   46 00000038                 END                          ;Fim do arquivo
+              00000000 
+              00000000 
+Command Line: --debug --xref --diag_suppress=9931,A1950W --cpu=Cortex-M4.fp.sp 
+--depend=.\objects\sinal.d -o.\objects\sinal.o -IC:\Users\ph01g\AppData\Local\A
+rm\Packs\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C129 --predefine="__EVAL SETA 1"
+ --predefine="__UVISION_VERSION SETA 538" --predefine="TM4C1294NCPDT SETA 1" --
+list=.\listings\sinal.lst sinal.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+DATA 00000000
+
+Symbol: DATA
+   Definitions
+      At line 8 in file sinal.s
+   Uses
+      None
+Comment: DATA unused
+1 symbol
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+.text 00000000
+
+Symbol: .text
+   Definitions
+      At line 11 in file sinal.s
+   Uses
+      None
+Comment: .text unused
+Sem_F 00000032
+
+Symbol: Sem_F
+   Definitions
+      At line 44 in file sinal.s
+   Uses
+      At line 26 in file sinal.s
+Comment: Sem_F used once
+Sem_N 0000002C
+
+Symbol: Sem_N
+   Definitions
+      At line 43 in file sinal.s
+   Uses
+      At line 27 in file sinal.s
+Comment: Sem_N used once
+Sinal 00000000
+
+Symbol: Sinal
+   Definitions
+      At line 24 in file sinal.s
+   Uses
+      At line 16 in file sinal.s
+Comment: Sinal used once
+4 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+External symbols
+
+PortF_Output 00000000
+
+Symbol: PortF_Output
+   Definitions
+      At line 13 in file sinal.s
+   Uses
+      At line 29 in file sinal.s
+Comment: PortF_Output used once
+PortN_Output 00000000
+
+Symbol: PortN_Output
+   Definitions
+      At line 14 in file sinal.s
+   Uses
+      At line 31 in file sinal.s
+Comment: PortN_Output used once
+Wait 00000000
+
+Symbol: Wait
+   Definitions
+      At line 17 in file sinal.s
+   Uses
+      At line 32 in file sinal.s
+Comment: Wait used once
+3 symbols
+344 symbols in table

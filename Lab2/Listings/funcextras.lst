@@ -1,0 +1,259 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ; FuncExtras.s
+    2 00000000         ; Desenvolvido para a placa EK-TM4C1294XL
+    3 00000000         ; Pedro Henrique Grossi da Silva - 24/05/2023 
+    4 00000000         
+    5 00000000         ;#######################################################
+                       #########################
+    6 00000000                 THUMB                        ; Instruções do tip
+                                                            o Thumb-2
+    7 00000000         ;#######################################################
+                       #########################  
+    8 00000000                 AREA             DATA, ALIGN=2
+    9 00000000         
+   10 00000000         ;#######################################################
+                       ######################### 
+   11 00000000                 AREA             |.text|, CODE, READONLY, ALIGN=
+2
+   12 00000000         
+   13 00000000                 IMPORT           PortJ_Input
+   14 00000000         
+   15 00000000                 EXPORT           Verifica_Chaves
+   16 00000000         
+   17 00000000         ;#######################################################
+                       #########################
+   18 00000000         ; Função Verifica_Chaves
+   19 00000000         ; Parâmetro de entrada: Não tem
+   20 00000000         ; Parâmetro de saída: Não tem
+   21 00000000         ;#######################################################
+                       #########################
+   22 00000000         Verifica_Chaves
+   23 00000000 46F2            MOV              R10, LR     ;Salva de onde veio
+                                                            
+   24 00000002 F7FF FFFE       BL               PortJ_Input
+   25 00000006         Verifica_Nenhuma
+   26 00000006 2803            CMP              R0, #2_00000011 ;Verifica se ne
+                                                            nhuma chave está pr
+                                                            essionada
+   27 00000008 D100            BNE              Verifica_SW1 ;Se o teste viu qu
+                                                            e tem pelo menos al
+                                                            guma chave pression
+                                                            ada
+   28 0000000A 4750            BX               R10         ;Return
+   29 0000000C         Verifica_SW1
+   30 0000000C 2802            CMP              R0, #2_00000010 ;Verifica se so
+                                                            mente a chave SW1 e
+                                                            stá pressionada
+   31 0000000E D102            BNE              Verifica_SW2 ;Se não for a chav
+                                                            e SW1 pula para a c
+                                                            have SW2
+   32 00000010 F000 F80E       BL               Troca_Modo  ;Troca entre cavalg
+                                                            ada e contador
+   33 00000014 4750            BX               R10         ;Return
+   34 00000016         Verifica_SW2
+   35 00000016 2801            CMP              R0, #2_00000001 ;Verifica se so
+                                                            mente a chave SW1 e
+                                                            stá pressionada
+   36 00000018 D102            BNE              Verifica_SW1_SW2 ;Se não for a 
+                                                            chave SW1 pula para
+                                                             o teste das duas
+   37 0000001A F000 F811       BL               Troca_Velocidade ;Troca velocid
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+                                                            ade dos modos
+   38 0000001E 4750            BX               R10         ;Return
+   39 00000020         Verifica_SW1_SW2
+   40 00000020 2800            CMP              R0, #2_00000000 ;Verifica se as
+                                                             duas chaves estão 
+                                                            pressionadas
+   41 00000022 BF18 4750       BXNE             R10         ;Return
+   42 00000026 F000 F803       BL               Troca_Modo  ;Troca entre cavalg
+                                                            ada e contador
+   43 0000002A F000 F809       BL               Troca_Velocidade ;Troca velocid
+                                                            ade dos modos
+   44 0000002E 4750            BX               R10         ;Return
+   45 00000030         
+   46 00000030         ;#######################################################
+                       #########################
+   47 00000030         ; Função Troca_Modo
+   48 00000030         ; Parâmetro de entrada: R11 --> 0 = cavalgada // 1 = con
+                       tagem
+   49 00000030         ; Parâmetro de saída: R11 --> 0 = cavalgada // 1 = conta
+                       gem
+   50 00000030         ;#######################################################
+                       #########################
+   51 00000030         Troca_Modo
+   52 00000030 F1BB 0F00       CMP              R11, #0     ;Verifica em qual m
+                                                            odo esta (cavalgada
+                                                             ou contagem)
+   53 00000034 BF0C F04F 
+              0B01             MOVEQ            R11, #1     ;Muda para contagem
+                                                            
+   54 0000003A F04F 0B00       MOVNE            R11, #0     ;Muda para cavalgad
+                                                            a
+   55 0000003E 4770            BX               LR          ;return
+   56 00000040         
+   57 00000040         ;#######################################################
+                       #########################
+   58 00000040         ; Função Troca_Velocidade
+   59 00000040         ; Parâmetro de entrada: R12 --> 1000ms // 500ms // 200ms
+                       
+   60 00000040         ; Parâmetro de saída: R12 --> 1000ms // 500ms // 200ms
+   61 00000040         ;#######################################################
+                       #########################
+   62 00000040         Troca_Velocidade
+   63 00000040 F5BC 7F7A       CMP              R12, #1000  ;Verifica se a velo
+                                                            cidade é 1000ms
+   64 00000044 BF04 F44F 
+              7CFA             MOVEQ            R12, #500   ;Se sim, muda para 
+                                                            500ms
+   65 0000004A 4750            BXEQ             R10         ;return
+   66 0000004C F5BC 7FFA       CMP              R12, #500   ;Verifica se a velo
+                                                            cidade é 500ms
+   67 00000050 BF04 F04F 
+              0CC8             MOVEQ            R12, #200   ;Se sim, muda para 
+                                                            200ms
+   68 00000056 4750            BXEQ             R10         ;return
+   69 00000058 F44F 7C7A       MOV              R12, #1000  ;Se sim, muda para 
+                                                            1000ms
+   70 0000005C 4750            BX               R10         ;return
+   71 0000005E         
+   72 0000005E         ;#######################################################
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+                       #########################
+   73 0000005E         ; Fim do Arquivo
+   74 0000005E         ;#######################################################
+                       #########################
+   75 0000005E 00 00           ALIGN                        ;Garante que o fim 
+                                                            da seção está alinh
+                                                            ada 
+   76 00000060                 END                          ;Fim do arquivo
+Command Line: --debug --xref --diag_suppress=9931,A1950W --cpu=Cortex-M4.fp.sp 
+--depend=.\objects\funcextras.d -o.\objects\funcextras.o -IC:\Users\ph01g\AppDa
+ta\Local\Arm\Packs\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C129 --predefine="__EV
+AL SETA 1" --predefine="__UVISION_VERSION SETA 538" --predefine="TM4C1294NCPDT 
+SETA 1" --list=.\listings\funcextras.lst FuncExtras.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+DATA 00000000
+
+Symbol: DATA
+   Definitions
+      At line 8 in file FuncExtras.s
+   Uses
+      None
+Comment: DATA unused
+1 symbol
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+.text 00000000
+
+Symbol: .text
+   Definitions
+      At line 11 in file FuncExtras.s
+   Uses
+      None
+Comment: .text unused
+Troca_Modo 00000030
+
+Symbol: Troca_Modo
+   Definitions
+      At line 51 in file FuncExtras.s
+   Uses
+      At line 32 in file FuncExtras.s
+      At line 42 in file FuncExtras.s
+
+Troca_Velocidade 00000040
+
+Symbol: Troca_Velocidade
+   Definitions
+      At line 62 in file FuncExtras.s
+   Uses
+      At line 37 in file FuncExtras.s
+      At line 43 in file FuncExtras.s
+
+Verifica_Chaves 00000000
+
+Symbol: Verifica_Chaves
+   Definitions
+      At line 22 in file FuncExtras.s
+   Uses
+      At line 15 in file FuncExtras.s
+Comment: Verifica_Chaves used once
+Verifica_Nenhuma 00000006
+
+Symbol: Verifica_Nenhuma
+   Definitions
+      At line 25 in file FuncExtras.s
+   Uses
+      None
+Comment: Verifica_Nenhuma unused
+Verifica_SW1 0000000C
+
+Symbol: Verifica_SW1
+   Definitions
+      At line 29 in file FuncExtras.s
+   Uses
+      At line 27 in file FuncExtras.s
+Comment: Verifica_SW1 used once
+Verifica_SW1_SW2 00000020
+
+Symbol: Verifica_SW1_SW2
+   Definitions
+      At line 39 in file FuncExtras.s
+   Uses
+      At line 36 in file FuncExtras.s
+Comment: Verifica_SW1_SW2 used once
+Verifica_SW2 00000016
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Relocatable symbols
+
+
+Symbol: Verifica_SW2
+   Definitions
+      At line 34 in file FuncExtras.s
+   Uses
+      At line 31 in file FuncExtras.s
+Comment: Verifica_SW2 used once
+8 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+External symbols
+
+PortJ_Input 00000000
+
+Symbol: PortJ_Input
+   Definitions
+      At line 13 in file FuncExtras.s
+   Uses
+      At line 24 in file FuncExtras.s
+Comment: PortJ_Input used once
+1 symbol
+344 symbols in table

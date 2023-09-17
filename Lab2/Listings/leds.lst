@@ -1,0 +1,300 @@
+
+
+
+ARM Macro Assembler    Page 1 
+
+
+    1 00000000         ; Leds.s
+    2 00000000         ; Desenvolvido para a placa EK-TM4C1294XL
+    3 00000000         ; Pedro Henrique Grossi da Silva - 24/05/2023 
+    4 00000000         
+    5 00000000         ;#######################################################
+                       #########################
+    6 00000000                 THUMB                        ; Instruções do tip
+                                                            o Thumb-2
+    7 00000000         ;#######################################################
+                       #########################  
+    8 00000000                 AREA             DATA, ALIGN=2
+    9 00000000         
+   10 00000000         ;#######################################################
+                       ######################### 
+   11 00000000                 AREA             |.text|, CODE, READONLY, ALIGN=
+2
+   12 00000000         
+   13 00000000                 IMPORT           PortF_Output 
+                                                            ; Output da porta F
+                                                            
+   14 00000000                 IMPORT           PortN_Output 
+                                                            ; Output da porta N
+                                                            
+   15 00000000         
+   16 00000000                 EXPORT           Modo_Operacao ; Exibe o modo de
+                                                             operação seleciona
+                                                            do
+   17 00000000         
+   18 00000000         ;#######################################################
+                       #########################
+   19 00000000         ; Função Modo_Operacao
+   20 00000000         ; Parâmetro de entrada: R11 --> 0 = cavalgada // 1 = con
+                       tagem
+   21 00000000         ; Parâmetro de saída: Não tem
+   22 00000000         ;#######################################################
+                       #########################
+   23 00000000         Modo_Operacao
+   24 00000000 46F2            MOV              R10, LR     ;Salva a posição de
+                                                             que veio
+   25 00000002 F1BB 0F00       CMP              R11, #0
+   26 00000006 D112            BNE              Contagem    ;Se for contagem sa
+                                                            lta para a subrotin
+                                                            a
+   27 00000008 D0FF            BEQ              Cavalgada   ;Se for cavalgada s
+                                                            alta para a subroti
+                                                            na
+   28 0000000A         
+   29 0000000A         ;#######################################################
+                       #########################
+   30 0000000A         ; Função Cavalgada
+   31 0000000A         ; Parâmetro de entrada: Não tem
+   32 0000000A         ; Parâmetro de saída: Não tem
+   33 0000000A         ;#######################################################
+                       #########################
+   34 0000000A         
+   35 0000000A         Cavalgada
+   36 0000000A 4D1D            LDR              R5, =Cavalaria_F ;Vetor de esta
+                                                            dos de F
+   37 0000000C 4E1D            LDR              R6, =Cavalaria_N ;Vetor de esta
+
+
+
+ARM Macro Assembler    Page 2 
+
+
+                                                            dos de N 
+   38 0000000E F855 0008       LDR              R0, [R5, R8] ;Seleciona o estad
+                                                            o de F
+   39 00000012 F7FF FFFE       BL               PortF_Output ;Print do estado d
+                                                            e F
+   40 00000016 F856 0008       LDR              R0, [R6, R8] ;Seleciona o estad
+                                                            o de N
+   41 0000001A F7FF FFFE       BL               PortN_Output ;Print do estado d
+                                                            e N
+   42 0000001E F1B8 0F05       CMP              R8, #5      ;Se chega no estado
+                                                             5(ultimo) 
+   43 00000022 BF14 F108 
+              0801             ADDNE            R8, R8, #1  ;Passa para o proxi
+                                                            mo estado
+   44 00000028 F04F 0800       MOVEQ            R8, #0      ;Retorna para o pri
+                                                            meiro estado
+   45 0000002C 4750            BX               R10         ;return
+   46 0000002E         
+   47 0000002E         ;#######################################################
+                       #########################
+   48 0000002E         ; Função Contagem
+   49 0000002E         ; Parâmetro de entrada: Não tem
+   50 0000002E         ; Parâmetro de saída: Não tem
+   51 0000002E         ;#######################################################
+                       #########################
+   52 0000002E         Contagem
+   53 0000002E 4D16            LDR              R5, =Contagem_F ;Vetor de estad
+                                                            os de F
+   54 00000030 4E16            LDR              R6, =Contagem_N ;Vetor de estad
+                                                            os de N
+   55 00000032 F855 0009       LDR              R0, [R5, R9] ;Seleciona o estad
+                                                            o de F
+   56 00000036 F7FF FFFE       BL               PortF_Output ;Print do estado d
+                                                            e F
+   57 0000003A F856 0009       LDR              R0, [R6, R9] ;Seleciona o estad
+                                                            o de N
+   58 0000003E F7FF FFFE       BL               PortN_Output ;Print do estado d
+                                                            e N
+   59 00000042 F1B9 0F0F       CMP              R9, #15     ;Se chega no estado
+                                                             5(ultimo) 
+   60 00000046 BF14 F109 
+              0901             ADDNE            R9, R9, #1  ;Passa para o proxi
+                                                            mo estado
+   61 0000004C F04F 0900       MOVEQ            R9, #0      ;Retorna para o pri
+                                                            meiro estado
+   62 00000050 4750            BX               R10         ;return
+   63 00000052         
+   64 00000052         ;#######################################################
+                       #########################
+   65 00000052         ; Fim do Arquivo
+   66 00000052         ;#######################################################
+                       #########################
+   67 00000052 00 00           ALIGN                        ;Garante que o fim 
+                                                            da seção está alinh
+                                                            ada 
+   68 00000054         ;Estados dos leds na cavalaria
+   69 00000054 02 01 00 
+              00 00 01 Cavalaria_N
+                               DCB              2_00000010,2_00000001,2_0000000
+
+
+
+ARM Macro Assembler    Page 3 
+
+
+0,2_00000000,2_00000000,2_00000001 
+                                                            ;vetor que salva o 
+                                                            estado do modo N na
+                                                             cavalaria
+   70 0000005A 00 00 10 
+              01 10 00 Cavalaria_F
+                               DCB              2_00000000,2_00000000,2_0001000
+0,2_00000001,2_00010000,2_00000000 
+                                                            ;vetor que salva o 
+                                                            estado do modo F na
+                                                             cavalaria
+   71 00000060         ;Estados dos leds na contagem
+   72 00000060 00 00 00 
+              00 01 01 
+              01 01 02 
+              02 02 02 
+              03 03 03 
+              03       Contagem_N
+                               DCB              2_00000000,2_00000000,2_0000000
+0,2_00000000,2_00000001,2_00000001,2_00000001,2_00000001,2_00000010,2_00000010,
+2_00000010,2_00000010,2_00000011,2_00000011,2_00000011,2_00000011 
+                                                            ;vetor que salva o 
+                                                            estado do modo N na
+                                                             contagem
+   73 00000070 00 01 10 
+              11 00 01 
+              10 11 00 
+              01 10 11 
+              00 01 10 
+              11       Contagem_F
+                               DCB              2_00000000,2_00000001,2_0001000
+0,2_00010001,2_00000000,2_00000001,2_00010000,2_00010001,2_00000000,2_00000001,
+2_00010000,2_00010001,2_00000000,2_00000001,2_00010000,2_00010001 
+                                                            ;vetor que salva o 
+                                                            estado do modo F na
+                                                             contagem
+   74 00000080                 END                          ;Fim do arquivo
+              00000000 
+              00000000 
+              00000000 
+              00000000 
+Command Line: --debug --xref --diag_suppress=9931,A1950W --cpu=Cortex-M4.fp.sp 
+--depend=.\objects\leds.d -o.\objects\leds.o -IC:\Users\ph01g\AppData\Local\Arm
+\Packs\Keil\TM4C_DFP\1.1.0\Device\Include\TM4C129 --predefine="__EVAL SETA 1" -
+-predefine="__UVISION_VERSION SETA 538" --predefine="TM4C1294NCPDT SETA 1" --li
+st=.\listings\leds.lst Leds.s
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+DATA 00000000
+
+Symbol: DATA
+   Definitions
+      At line 8 in file Leds.s
+   Uses
+      None
+Comment: DATA unused
+1 symbol
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+Relocatable symbols
+
+.text 00000000
+
+Symbol: .text
+   Definitions
+      At line 11 in file Leds.s
+   Uses
+      None
+Comment: .text unused
+Cavalaria_F 0000005A
+
+Symbol: Cavalaria_F
+   Definitions
+      At line 70 in file Leds.s
+   Uses
+      At line 36 in file Leds.s
+Comment: Cavalaria_F used once
+Cavalaria_N 00000054
+
+Symbol: Cavalaria_N
+   Definitions
+      At line 69 in file Leds.s
+   Uses
+      At line 37 in file Leds.s
+Comment: Cavalaria_N used once
+Cavalgada 0000000A
+
+Symbol: Cavalgada
+   Definitions
+      At line 35 in file Leds.s
+   Uses
+      At line 27 in file Leds.s
+Comment: Cavalgada used once
+Contagem 0000002E
+
+Symbol: Contagem
+   Definitions
+      At line 52 in file Leds.s
+   Uses
+      At line 26 in file Leds.s
+Comment: Contagem used once
+Contagem_F 00000070
+
+Symbol: Contagem_F
+   Definitions
+      At line 73 in file Leds.s
+   Uses
+      At line 53 in file Leds.s
+Comment: Contagem_F used once
+Contagem_N 00000060
+
+Symbol: Contagem_N
+   Definitions
+      At line 72 in file Leds.s
+   Uses
+      At line 54 in file Leds.s
+Comment: Contagem_N used once
+Modo_Operacao 00000000
+
+Symbol: Modo_Operacao
+
+
+
+ARM Macro Assembler    Page 2 Alphabetic symbol ordering
+Relocatable symbols
+
+   Definitions
+      At line 23 in file Leds.s
+   Uses
+      At line 16 in file Leds.s
+Comment: Modo_Operacao used once
+8 symbols
+
+
+
+ARM Macro Assembler    Page 1 Alphabetic symbol ordering
+External symbols
+
+PortF_Output 00000000
+
+Symbol: PortF_Output
+   Definitions
+      At line 13 in file Leds.s
+   Uses
+      At line 39 in file Leds.s
+      At line 56 in file Leds.s
+
+PortN_Output 00000000
+
+Symbol: PortN_Output
+   Definitions
+      At line 14 in file Leds.s
+   Uses
+      At line 41 in file Leds.s
+      At line 58 in file Leds.s
+
+2 symbols
+347 symbols in table
